@@ -1,1 +1,46 @@
+name: Daily Birthday Notification Bot
 
+on:
+  schedule:
+    - cron: "30 0 * * *"
+
+  workflow_dispatch:
+
+jobs:
+  birthday-bot:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Create Google credentials
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+        run: |
+          mkdir -p credentials
+          printf '%s' "$GOOGLE_SERVICE_ACCOUNT_JSON" > credentials/google_service_account.json
+
+      - name: Run Birthday Bot
+        env:
+          MEMBERS_GOOGLE_SHEET_ID: ${{ secrets.MEMBERS_GOOGLE_SHEET_ID }}
+          ADMINS_GOOGLE_SHEET_ID: ${{ secrets.ADMINS_GOOGLE_SHEET_ID }}
+          STATUS_REPORT_SHEET_ID: ${{ secrets.STATUS_REPORT_SHEET_ID }}
+
+          EMAIL_ADDRESS: ${{ secrets.EMAIL_ADDRESS }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          SMTP_SERVER: ${{ secrets.SMTP_SERVER }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          ALERT_EMAIL: ${{ secrets.ALERT_EMAIL }}
+
+        run: |
+          python main.py
