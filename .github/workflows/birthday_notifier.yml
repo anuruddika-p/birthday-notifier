@@ -43,4 +43,4 @@ jobs:
           ALERT_EMAIL: ${{ secrets.ALERT_EMAIL }}
 
         run: |
-          python main.py
+          python birthday_manager.py
